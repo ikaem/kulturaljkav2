@@ -3,14 +3,14 @@ import './App.css';
 // import SummaryCard from './components/SummaryCard/SummaryCard';
 import Home from './components/Home/Home';
 
-import {artists} from './artists';
+//import {artists} from './artists';
 import DetailedCard from './components/DetailedCard/DetailedCard';
 import Navigation from './components/Navigation/Navigation';
 import AddUpdateArtist from './components/AddUpdateArtist/AddUpdateArtist';
 import SigninRegister from './components/SigninRegister/SigninRegister';
 
 const initialState = {
-  artists: artists,
+  artists: [],
   currentRoute: "home",
   // currentRoute: "addArtist",
   // currentRoute: "band",
@@ -39,6 +39,15 @@ class App extends React.Component {
       this.state = initialState;
   }
 
+  componentDidMount(){
+    // fetching data for the artist state
+    fetch("http://localhost:5000/")
+    .then(response => response.json())
+    .then(artists => this.setState({artists: artists}))
+    .catch(err => console.log(err))
+
+  }
+
   onSignoutAndResetState = () => {
     this.setState(initialState);
   }
@@ -47,7 +56,7 @@ class App extends React.Component {
     // used for creating currentArtist object, to be used for the state so detailedCard, addUpdateArtists are avaialble
     const onLoadCurrentArtist = (name) => {
       if(name){
-        return artists.filter(artist => {
+        return this.state.artists.filter(artist => {
           return artist.name === name;
         })[0]
       }
@@ -75,7 +84,7 @@ class App extends React.Component {
     let add = true;
     let index;
 
-    artists.forEach((artistDB, indexDB) => {
+    this.state.artists.forEach((artistDB, indexDB) => {
       if(artistDB.id === artist.id){
         console.log("We have that user...");
         add = false;
@@ -151,6 +160,8 @@ class App extends React.Component {
         return null;
     }
   }
+
+  
 
   render(){
     return (
