@@ -1,104 +1,72 @@
 import React from 'react';
-import {artists} from "../../artists";
 
-class AddUpdateArtist extends React.Component{
-    constructor(props){
-        super(props);
+const AddUpdateArtist = (props) => {
+    const {currentRoute, onArtistToDB, currentArtist, loggedUser} = props;
 
-        this.formRef = React.createRef();
+    console.log(loggedUser);
 
-        this.state = {
-            formArtist:{
+
+    const onSubmitForm = (event) => {
+        event.preventDefault();
+        return {
+            artist: {
                 alt: "Creative Commons Credit",
-                city: "",
-                genre: "",
-                id: Math.random(),
-                image: "",
-                name: "",
-                submittedBy: "Karlo",
-                submittedOn: new Date(),
-                lastUpdatedOn: "How to do this?",
-                lastUpdatedBy: "Who did it",
-                web: "",
+                city: event.target.city.value,
+                genre: event.target.genre.value,
+                id: (currentRoute === "addArtist"? Math.random(): currentArtist.id),
+                image: event.target.image.value,
+                name: event.target.name.value,
+                submittedBy: (currentRoute === "addArtist"? loggedUser.name: currentArtist.submittedBy),
+                submittedOn: (currentRoute === "addArtist"? new Date(): currentArtist.submittedOn),
+                lastUpdatedOn: new Date(),
+                lastUpdatedBy: loggedUser.name,
+                web: event.target.web.value,
             },
-            artistToUpdate: {}
+            cameFrom: currentRoute,
         }
     }
-
-
-    onChangeHandler = (event) => {
-        this.setState(Object.assign(this.state.formArtist, {
-            [event.target.name]: event.target.value
-        }))
-    }
-
-    onSubmitForm = (event) => {
-        event.preventDefault();
-        artists.push(this.state.formArtist);
-        console.log("artists", artists);
-        console.log(this.formRef);
-        console.log(this.formRef.current.length);
-        // console.log("this.props:", this.props);
-    }
-
-    resetForm = () => {
-        setTimeout(() => {
-            this.formRef.current.reset();
-            console.log(3);
-        },1)
         
-    }
-
-    render(){
-
-        return (
+    return (
         <main>
             <form
-            ref={this.formRef}
-            name="form" onSubmit={this.onSubmitForm}>
-                <legend>{this.props.currentRoute === "addArtist" ? "Dodaj izvođača": "Uredi izvođača"}</legend>
+            name="form" onSubmit={(event) => onArtistToDB(onSubmitForm(event))}>
+                <legend>{currentRoute === "addArtist" ? "Dodaj izvođača": "Uredi izvođača"}</legend>
 
                 <div>
                     <label htmlFor="name">Ime izvođača</label>
                     <input 
-                    onChange={this.onChangeHandler}
-                    defaultValue={this.props.currentArtist.name} type="text" name="name" id="name"/>
+                    defaultValue={currentArtist.name} type="text" name="name" id="name"/>
                 </div>
 
                 <div>
                     <label htmlFor="image">Poveznica na sliku</label>
                     <input 
-                    onChange={this.onChangeHandler}
-                    defaultValue={this.props.currentArtist.image} type="text" name="image"  id="image"/>
+                    defaultValue={currentArtist.image} type="text" name="image"  id="image"/>
                 </div>
 
                 <div>
                     <label htmlFor="genre">Žanr</label>
                     <input 
-                    onChange={this.onChangeHandler}
-                    defaultValue={this.props.currentArtist.genre} type="text" name="genre"  id="genre"/>
+                    defaultValue={currentArtist.genre} type="text" name="genre"  id="genre"/>
                 </div>
 
                 <div>
                     <label htmlFor="city">Izvođač dolazi iz:</label>
                     <input 
-                    onChange={this.onChangeHandler}
-                    defaultValue={this.props.currentArtist.city} type="city" name="city"  id="city"/>
+                    defaultValue={currentArtist.city} type="city" name="city"  id="city"/>
                 </div>
 
                 <div>
                     <label htmlFor="web">Poveznica na stranicu</label>
                     <input 
-                    onChange={this.onChangeHandler}
-                    defaultValue={this.props.currentArtist.web} type="web" name="web"  id="web"/>
+                    defaultValue={currentArtist.web} type="web" name="web"  id="web"/>
                 </div>
 
                 <input type="submit" value="Pošalji"/>
 
             </form>
         </main>
-        )
-    }
+    )
 }
 
 export default AddUpdateArtist;

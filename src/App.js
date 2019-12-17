@@ -9,49 +9,81 @@ import Navigation from './components/Navigation/Navigation';
 import AddUpdateArtist from './components/AddUpdateArtist/AddUpdateArtist';
 import SigninRegister from './components/SigninRegister/SigninRegister';
 
-const initialState = {
-  artists: [],
-  currentRoute: "home",
-  // currentRoute: "addArtist",
-  // currentRoute: "band",
-  currentArtist: {
-  },
-  emptyArtist: {
-    alt: "",
-    city: "",
-    genre: "",
-    id: "",
-    image: "",
-    name: "",
-    submittedBy: "",
-    submittedOn: "",
-    lastUpdatedOn: "",
-    lastUpdatedBy: "",
-    web: "",
-  },
-  loggedUser: {},
-  notLoggedMessage: "",
-}
-
 class App extends React.Component {
   constructor(){
     super();
-      this.state = initialState;
+      this.state = {};
   }
-
   componentDidMount(){
-    // fetching data for the artist state
-    fetch("http://localhost:5000/")
-    .then(response => response.json())
+    this.setInitialState();
+    // ROOT GET
+    this.onEndpointFetch("get","/",)
     .then(artists => this.setState({artists: artists}))
-    .catch(err => console.log(err))
+}
 
+  onEndpointFetch = (method, param1="", data) => {
+    return fetch(`http://localhost:5000${param1}`,{
+      method: method,
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .catch(err => console.log(err));
   }
 
+
+// UPDATE AND ADD ARTIST - this will move to add artist component
+  onArtistToDB = (artistData) => {
+    if(artistData.cameFrom === "updateArtist"){
+      this.onEndpointFetch("put","/updateartist","",artistData.artist)
+      .then(artist => this.setState({currentArtist: artist, currentRoute: "band"}))
+    }
+    else{
+      this.onEndpointFetch("post", "/addartist", "", artistData.artist)
+      .then(data => this.setState({currentRoute: "home"}));
+    }
+    // refetch artists in either case
+    this.onEndpointFetch("get","/",)
+    .then(artists => this.setState({artists: artists}))
+  }
+// -----------------------
+
+
+// this will go away
   onSignoutAndResetState = () => {
-    this.setState(initialState);
+    this.setInitialState();
+    // refetch artists
+    this.onEndpointFetch("get","/",)
+    .then(artists => this.setState({artists: artists}))
   }
-  
+
+  setLoggedUser = (user={}) => {
+    this.setState({loggedUser: user});
+  }
+  setCurrentArtist = (artist={}) => {
+    this.setState({currentArtist: artists});
+  }
+  setInitialState = () => {
+    this.setState({
+      artists: [],
+      // currentRoute: "home",
+      currentRoute: "home",
+      // currentRoute: "band",
+      currentArtist: {
+      },
+      loggedUser: {
+        // name: "Karlo",
+        // email: "karlo@gmail.com"
+      },
+      message: "",
+    })
+  }
+  setCurrentRoute = (route="home") => {
+    this.setState({currentRoute: route});
+  }
+  setMessage = (message="") => {
+    this.setState({message: message});
+  }
   onChangeRoute = (route, artistName = "", notLoggedMessage = "") => {
     // used for creating currentArtist object, to be used for the state so detailedCard, addUpdateArtists are avaialble
     const onLoadCurrentArtist = (name) => {
@@ -80,31 +112,7 @@ class App extends React.Component {
     }
   }
 
-  addArtistToDB = (artist) => {
-    let add = true;
-    let index;
 
-    this.state.artists.forEach((artistDB, indexDB) => {
-      if(artistDB.id === artist.id){
-        console.log("We have that user...");
-        add = false;
-        index = indexDB;
-      }
-    })
-
-    if(add){
-      artists.push(artist);
-      console.log(artists);
-    }
-    else{
-      artists[index] = artist;
-      console.log(artists);
-    }
-  }
-
-  loggedUserToState = (user) => {
-    this.setState({loggedUser: user});
-  }
   
   routeSwitcher = () => {
     switch(this.state.currentRoute){
@@ -113,6 +121,7 @@ class App extends React.Component {
             <Home 
             artists={this.state.artists}
             onChangeRoute={this.onChangeRoute}
+            key={this.state.currentRoute}
             />
           </div>
       case "band": 
@@ -137,11 +146,13 @@ class App extends React.Component {
         return <div>
           <AddUpdateArtist
             currentRoute={this.state.currentRoute}
-            addArtistToDB={this.addArtistToDB}
+            onArtistToDB={this.onArtistToDB}
             currentArtist={this.state.currentArtist}
+            loggedUser={this.state.loggedUser}
             onChangeRoute={this.onChangeRoute}
             // key={this.state.currentRoute}
             key={this.state.currentRoute}
+            onEndpointFetch={this.onEndpointFetch}
           />
           </div>
       case "signin":
@@ -150,10 +161,10 @@ class App extends React.Component {
           <SigninRegister
             currentRoute={this.state.currentRoute}
             onChangeRoute={this.onChangeRoute}
-            loggedUserToState={this.loggedUserToState}
+            loginUser={this.loggedUserToState}
             notLoggedMessage={this.state.notLoggedMessage}
             currentArtist={this.state.currentArtist}
-
+            onEndpointFetch={this.onEndpointFetch}
           />
           </div>
       default: 
