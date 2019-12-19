@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/ikaem/kulturaljkav2.git/static/css/main.07e2f46e.chunk.css",
+    "main.js": "/ikaem/kulturaljkav2.git/static/js/main.abc70cee.chunk.js",
+    "main.js.map": "/ikaem/kulturaljkav2.git/static/js/main.abc70cee.chunk.js.map",
+    "runtime-main.js": "/ikaem/kulturaljkav2.git/static/js/runtime-main.93330cf2.js",
+    "runtime-main.js.map": "/ikaem/kulturaljkav2.git/static/js/runtime-main.93330cf2.js.map",
+    "static/css/2.eb45ad44.chunk.css": "/ikaem/kulturaljkav2.git/static/css/2.eb45ad44.chunk.css",
+    "static/js/2.7e63720b.chunk.js": "/ikaem/kulturaljkav2.git/static/js/2.7e63720b.chunk.js",
+    "static/js/2.7e63720b.chunk.js.map": "/ikaem/kulturaljkav2.git/static/js/2.7e63720b.chunk.js.map",
+    "index.html": "/ikaem/kulturaljkav2.git/index.html",
+    "precache-manifest.1a343ba5557f0b0803ab5c61e37a6bf5.js": "/ikaem/kulturaljkav2.git/precache-manifest.1a343ba5557f0b0803ab5c61e37a6bf5.js",
+    "service-worker.js": "/ikaem/kulturaljkav2.git/service-worker.js",
+    "static/css/2.eb45ad44.chunk.css.map": "/ikaem/kulturaljkav2.git/static/css/2.eb45ad44.chunk.css.map",
+    "static/css/main.07e2f46e.chunk.css.map": "/ikaem/kulturaljkav2.git/static/css/main.07e2f46e.chunk.css.map",
+    "static/js/2.7e63720b.chunk.js.LICENSE": "/ikaem/kulturaljkav2.git/static/js/2.7e63720b.chunk.js.LICENSE"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.93330cf2.js",
+    "static/css/2.eb45ad44.chunk.css",
+    "static/js/2.7e63720b.chunk.js",
+    "static/css/main.07e2f46e.chunk.css",
+    "static/js/main.abc70cee.chunk.js"
+  ]
+}
