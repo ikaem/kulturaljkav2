@@ -30,20 +30,30 @@ class App extends React.Component {
           lastUpdatedBy: "",
           web: "",
         },
-        loggedUser: {
-/*           name: "Karlo",
-          email: "karlo@gmail.com" */
-        },
+        loggedUser: {},
         message: "",
       };
   }
   componentDidMount(){
     // ROOT GET
     this.onEndpointFetch("get","/",)
-    .then(artists => this.onSetStateProperty("artists", artists));
+    .then(artists => this.onSetStateProperty("artists", artists || [{
+        alt: "",
+        city: "",
+        genre: "",
+        id: "",
+        image: "",
+        name: "",
+        submittedBy: "",
+        submittedOn: "",
+        lastUpdatedOn: "",
+        lastUpdatedBy: "",
+        web: "",
+      }]));
   }
   onEndpointFetch = (method, param="", data) => {
-    return fetch(`http://localhost:5000${param}`,{
+    // https://kulturaljka-server.herokuapp.com/
+    return fetch(`https://kulturaljka-server.herokuapp.com${param}`,{
       method: method,
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(data)
@@ -127,6 +137,7 @@ class App extends React.Component {
             onEndpointFetch={this.onEndpointFetch}
             onSetStateProperty={this.onSetStateProperty}
             loggedUser={this.state.loggedUser}
+            message={this.state.message}
             //
           />
           </div>
