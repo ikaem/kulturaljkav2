@@ -8,7 +8,16 @@ class SigninRegister extends React.Component {
             name: "",
             password: "",
             email: "",
+            currentRoute: "",
+
         }
+    /*  SEEMS LIKE NOT NEEDED EITHER, SAME AS WITH ARTIST FORM
+        this.onChangeHandler = this.onChangeHandler.bind(this);
+        this.onSubmitForm = this.onSubmitForm.bind(this); */
+
+    }
+    componentDidMount(){
+        this.setState({currentRoute: this.props.currentRoute})
     }
 
     onChangeHandler = (event) => {
@@ -19,58 +28,57 @@ class SigninRegister extends React.Component {
 
     onSubmitForm = (event) => {
         event.preventDefault();
+        if(this.props.currentRoute === "signin"){
+            return {email: this.state.email, password: this.state.password}
+        }
+        else{
+            return {email: this.state.email, password: this.state.password, name: this.state.name}
+        }
+    }
 
-        console.log(this.props);
-            if(this.props.currentRoute === "signin"){
-                const loggedUser = () => {
-                    let foundLoginUser = false;
-                    for(this.user of users){
-                        if(this.user.email === this.state.email && this.user.password === this.state.password){
-                            foundLoginUser = true;
-
-                            this.props.onChangeRoute("home", this.props.currentArtist.name);
-                            console.log(this.props.currentArtist);
-
-                            return {email: this.user.email, name: this.user.name};
-                        }
-                    }
-                    if(!foundLoginUser){
-                        this.props.onChangeRoute("signin", "", "Nepostojeći korisnik. Molimo provjerite unos ili se registrirajte.")
-                        return {};
-                    }
-                }
-                return loggedUser();
-            }
-            else if(this.props.currentRoute === "register"){
-
-                // trebao bi pregledati korisnike i vidjeti postoji li ijedan s istim tim emailom
-
-                if(!users.some(user => user.email === this.state.email)){
-                    users.push(this.state);
-                    console.log(users);
-                    this.props.onChangeRoute("home", this.props.currentArtist.name)
-                    return {email: this.state.email, name: this.state.name};
+    fetchUser = (user) => {
+        if(this.state.currentRoute === "signin"){
+            // ovdje bi se jos dalo provjeravat po vrijednosti message elementa, i usmjeravati korinika prema tome... mozda cak samo prebaciti poruku sa servera do korisnika, na hrvatskom...
+            this.props.onEndpointFetch("post", "/login", user)
+            .then(response => {
+                if(response.message === "Login success"){
+                    this.props.onSetStateProperty("loggedUser", response.data);
+                    this.props.onSetStateProperty("currentRoute", "home");
                 }
                 else{
-                    console.log("A user with this email already exists");
-                    this.props.onChangeRoute("register", this.props.currentArtist.name, "A user with this email already exists");
-                    return {};
+                    this.props.onSetStateProperty("message", "Nepostojeći korisnik ili netočna lozinka. Pokušajte ponovno");
                 }
-
-
-            }
+            })
+            .catch(console.log);
+        }
+        else{
+            this.props.onEndpointFetch("post", "/register", user)
+            .then(response => {
+                if(response.message === "registration success"){
+                    this.props.onSetStateProperty("loggedUser", response.data);
+                    this.props.onSetStateProperty("currentRoute", "home");
+                }
+                else if(response.message === "email already in use"){
+                    this.props.onSetStateProperty("message", "Unešeni email se već koristi");
+                }
+                else{
+                    this.props.onSetStateProperty("message", "molimo ispunite sva polja");
+                }
+            })
+            .catch(console.log);
+        }
     }
 
     render(){
         return (
-        <main>
-            <form name="form" onSubmit={(event) => this.props.loggedUserToState(this.onSubmitForm(event))}>
+            <form name="form" onSubmit={(event) => this.fetchUser(this.onSubmitForm(event))}>
                 <legend>{this.props.currentRoute === "signin"? "Prijava": "Registracija"}</legend>
                 
                 {!(this.props.currentRoute === "signin")? (<div>
                     <label htmlFor="name">Ime</label>
                     <input 
                     required
+                    value = {this.state.name}
                     onChange={this.onChangeHandler}
                     type="text" 
                     name="name" 
@@ -81,6 +89,7 @@ class SigninRegister extends React.Component {
                     <label htmlFor="password">Lozinka</label>
                     <input 
                     required
+                    value = {this.state.password}
                     onChange={this.onChangeHandler}
                     type="password" 
                     name="password" 
@@ -91,12 +100,12 @@ class SigninRegister extends React.Component {
                     <label htmlFor="email">Email</label>
                     <input 
                     required
+                    value = {this.state.email}
                     onChange={this.onChangeHandler}
                     type="email" 
                     name="email" 
                     id="email"/>
                 </div>
-                {this.props.notLoggedMessage}
 
                 {/* might change these submit types to some p element or something... */}
                 {this.props.currentRoute === "signin"? (
@@ -107,9 +116,9 @@ class SigninRegister extends React.Component {
                     <input 
                     type="submit" 
                     value="Register"/>)}
+                {<div>{this.props.message}</div>}
 
             </form>
-        </main>
         )
     }
 }

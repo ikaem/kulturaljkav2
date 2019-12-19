@@ -3,136 +3,131 @@ import './App.css';
 // import SummaryCard from './components/SummaryCard/SummaryCard';
 import Home from './components/Home/Home';
 
-import {artists} from './artists';
+//import {artists} from './artists';
 import DetailedCard from './components/DetailedCard/DetailedCard';
 import Navigation from './components/Navigation/Navigation';
 import AddUpdateArtist from './components/AddUpdateArtist/AddUpdateArtist';
 import SigninRegister from './components/SigninRegister/SigninRegister';
 
-const initialState = {
-  artists: artists,
-  currentRoute: "home",
-  // currentRoute: "addArtist",
-  // currentRoute: "band",
-  currentArtist: {
-  },
-  emptyArtist: {
-    alt: "",
-    city: "",
-    genre: "",
-    id: "",
-    image: "",
-    name: "",
-    submittedBy: "",
-    submittedOn: "",
-    lastUpdatedOn: "",
-    lastUpdatedBy: "",
-    web: "",
-  },
-  loggedUser: {},
-  notLoggedMessage: "",
-}
-
 class App extends React.Component {
   constructor(){
     super();
-      this.state = initialState;
+      this.state = {
+        artists: [],
+        // currentRoute: "home",
+        currentRoute: "home",
+        // currentRoute: "band",
+        currentArtist: {
+          alt: "",
+          city: "",
+          genre: "",
+          id: "",
+          image: "",
+          name: "",
+          submittedBy: "",
+          submittedOn: "",
+          lastUpdatedOn: "",
+          lastUpdatedBy: "",
+          web: "",
+        },
+        loggedUser: {
+/*           name: "Karlo",
+          email: "karlo@gmail.com" */
+        },
+        message: "",
+      };
   }
-
-  onSignoutAndResetState = () => {
-    this.setState(initialState);
+  componentDidMount(){
+    // ROOT GET
+    this.onEndpointFetch("get","/",)
+    .then(artists => this.onSetStateProperty("artists", artists));
   }
-  
-  onChangeRoute = (route, artistName = "", notLoggedMessage = "") => {
-    // used for creating currentArtist object, to be used for the state so detailedCard, addUpdateArtists are avaialble
-    const onLoadCurrentArtist = (name) => {
-      if(name){
-        return artists.filter(artist => {
-          return artist.name === name;
-        })[0]
-      }
-      else{
-         return this.state.emptyArtist;
-      }
-    }
-    this.setState(Object.assign(this.state, {currentArtist: onLoadCurrentArtist(artistName), currentRoute: route, notLoggedMessage: notLoggedMessage}));
-
-    console.log("currentArtist:", this.state.currentArtist);
-    console.log("currentRoute:", this.state.currentRoute);
-  }
-
-  loggedInRouter = (logged, notLogged, artistName = "", notLoggedMessage = "") => {
-    if(this.state.loggedUser.name){
-        this.onChangeRoute(logged, artistName);
-    }
-    else{
-        this.onChangeRoute(notLogged, artistName, notLoggedMessage);
-        //this.setState({notLoggedMessage: notLoggedMessage});
-    }
-  }
-
-  addArtistToDB = (artist) => {
-    let add = true;
-    let index;
-
-    artists.forEach((artistDB, indexDB) => {
-      if(artistDB.id === artist.id){
-        console.log("We have that user...");
-        add = false;
-        index = indexDB;
-      }
+  onEndpointFetch = (method, param="", data) => {
+    return fetch(`http://localhost:5000${param}`,{
+      method: method,
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(data)
     })
-
-    if(add){
-      artists.push(artist);
-      console.log(artists);
-    }
-    else{
-      artists[index] = artist;
-      console.log(artists);
-    }
+    .then(response => response.json())
+    .catch(err => console.log(err));
   }
-
-  loggedUserToState = (user) => {
+  setLoggedUser = (user={}) => {
     this.setState({loggedUser: user});
   }
+  setCurrentArtist = (artist={}) => {
+    this.setState({currentArtist: artist});
+  }
+  // dont think i need this one
+  setInitialState = () => {
+    this.setState({
+      artists: [],
+      // currentRoute: "home",
+      currentRoute: "home",
+      // currentRoute: "band",
+      currentArtist: {
+        alt: "",
+        city: "",
+        genre: "",
+        id: "",
+        image: "",
+        name: "",
+        submittedBy: "",
+        submittedOn: "",
+        lastUpdatedOn: "",
+        lastUpdatedBy: "",
+        web: "",
+      },
+      loggedUser: {},
+      message: "",
+    })
+  }
+  /* DONT NEED THIS ONE
+  setCurrentRoute = (route="home") => {
+    this.setState({currentRoute: route});
+  } */
+  setMessage = (message="") => {
+    this.setState({message: message});
+  }
   
+  // ===  would this work instead of all setstate functions? with default value being "", even for objects? === //
+  onSetStateProperty = (property, value={}) => {
+    this.setState({[property]: value});
+    // just for testing
+    console.log(value)
+  }
+  // ======================================================================== // 
+
+
   routeSwitcher = () => {
     switch(this.state.currentRoute){
       case "home": 
         return <div>
             <Home 
             artists={this.state.artists}
-            onChangeRoute={this.onChangeRoute}
+            onSetStateProperty={this.onSetStateProperty}
+            key={this.state.currentRoute}
+            currentArtist={this.currentArtist}
             />
           </div>
       case "band": 
         return <div>
             <DetailedCard 
-            onChangeRoute={this.onChangeRoute}
-            loggedInRouter={this.loggedInRouter}
             currentArtist={this.state.currentArtist}
-            id={this.state.currentArtist.id}
-            name={this.state.currentArtist.name}
-            image={this.state.currentArtist.image}
-            alt={this.state.currentArtist.alt}
-            genre={this.state.currentArtist.genre}
-            city={this.state.currentArtist.city}
-            web={this.state.currentArtist.web}
-            submittedBy={this.state.currentArtist.submittedBy}
-            submittedOn={this.state.currentArtist.submittedOn}
+            loggedUser={this.state.loggedUser}
+            onSetStateProperty={this.onSetStateProperty}
             />
           </div>
-      case "addArtist":
-      case "updateArtist": 
+      case "addartist":
+      case "updateartist": 
         return <div>
           <AddUpdateArtist
-            currentRoute={this.state.currentRoute}
-            addArtistToDB={this.addArtistToDB}
             currentArtist={this.state.currentArtist}
-            onChangeRoute={this.onChangeRoute}
-            // key={this.state.currentRoute}
+            currentRoute={this.state.currentRoute}
             key={this.state.currentRoute}
+            onEndpointFetch={this.onEndpointFetch}
+            onSetStateProperty={this.onSetStateProperty}
+            loggedUser={this.state.loggedUser}
+            //
           />
           </div>
       case "signin":
@@ -140,11 +135,12 @@ class App extends React.Component {
         return <div>
           <SigninRegister
             currentRoute={this.state.currentRoute}
-            onChangeRoute={this.onChangeRoute}
-            loggedUserToState={this.loggedUserToState}
-            notLoggedMessage={this.state.notLoggedMessage}
             currentArtist={this.state.currentArtist}
-
+            onEndpointFetch={this.onEndpointFetch}
+            loggedUser={this.state.loggedUser}
+            onSetStateProperty={this.onSetStateProperty}
+            message={this.state.message}
+            key={this.state.currentRoute}
           />
           </div>
       default: 
@@ -152,16 +148,16 @@ class App extends React.Component {
     }
   }
 
+
   render(){
     return (
       <div>
         <h1>Kulturaljka</h1>
         <Navigation
-          onSignoutAndResetState={this.onSignoutAndResetState}
-          onChangeRoute={this.onChangeRoute}
-          loggedInRouter={this.loggedInRouter}
+          setCurrentRoute={this.setCurrentRoute}
           loggedUser={this.state.loggedUser}
-          currentArtist={this.state.currentArtist}
+          setInitialState={this.setInitialState}
+          onSetStateProperty={this.onSetStateProperty}
         />
 {/*         
         <Search/> */}

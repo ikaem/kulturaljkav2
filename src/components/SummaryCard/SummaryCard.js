@@ -1,6 +1,8 @@
 import React from 'react';
 
-const SummaryCard = ({image, alt, name, genre, web, onChangeRoute}) => {
+const SummaryCard = ({currentArtist, onSetStateProperty}) => {
+    const {image, alt, name, genre} = currentArtist;
+    
     return (
         <div>
             <h1>{name}</h1>
@@ -10,12 +12,14 @@ const SummaryCard = ({image, alt, name, genre, web, onChangeRoute}) => {
             style={{width:"500px", height:"auto"}}
             />
             <p>Žanr: <strong>{genre}</strong></p>
-{/*             <p>Slučajna pjesma: <strong>{randomSong}</strong> s albuma <strong>{randomAlbum}</strong></p>
-            <p><a href={"http://www." + web}>{web}</a></p> */}
             <input 
             type="button" 
             value="Detaljnije"
-            onClick={()=> onChangeRoute("band", name)}
+            onClick={()=> {
+                onSetStateProperty("currentRoute", "band")
+                onSetStateProperty("currentArtist", currentArtist)
+                console.log(currentArtist);
+                }}
             />
         </div>
     )
