@@ -1,7 +1,7 @@
 import React from 'react';
 
 const DetailedCard = ({currentArtist, onSetStateProperty, loggedUser}) => {
-    const { name, image, alt, genre, city, web, submittedBy, submittedOn } = currentArtist;
+    const { name, image, alt, genre, city, web, submittedby, submittedon } = currentArtist;
 
     return (
         <div>
@@ -14,7 +14,7 @@ const DetailedCard = ({currentArtist, onSetStateProperty, loggedUser}) => {
             <p>Žanr: <strong>{genre}</strong></p>
             <p>Dolaze iz : <strong>{city}</strong></p>
             <p><a href={"http://www." + web}>{web}</a></p>
-            <p>Postavio {submittedBy} dana {submittedOn.toLocaleString()}</p>
+            <p>Postavio {submittedby} dana {new Date(submittedon).toLocaleString()}</p>
             <input 
             onClick={() => 
                 {

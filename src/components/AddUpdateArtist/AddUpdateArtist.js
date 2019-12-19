@@ -8,13 +8,13 @@ class AddUpdateArtist extends React.Component {
                 alt: "i ovo ce trebati namjestiti - mozda cak staviti opis slike input.. ili maknuti skroz",
                 city: "",
                 genre: "",
-                id: Math.random(),
+/*                 id: Math.random(), */
                 image: "",
                 name: "",
-                submittedBy: "Kako ovo",
-                submittedOn: new Date(),
-                lastUpdatedOn: new Date(),
-                lastUpdatedBy: this.props.loggedUser.name,
+                submittedby: "Kako ovo",
+                submittedon: new Date(),
+                lastupdatedon: new Date(),
+                lastupdatedby: this.props.loggedUser.name,
                 web: " ",
             },
             // this property i dont need, but im leaving it because i busted my ass working around it to update just artist property
@@ -49,21 +49,38 @@ class AddUpdateArtist extends React.Component {
     fetchArtist = (artist) => {
         if(this.state.currentRoute === "addartist"){
             this.props.onEndpointFetch("post", "/addartist", artist)
-            .then(artists => {
-                {   this.props.onSetStateProperty("artists", artists);
-                    // ovo ispod bi moglo kiksat za postavljanje forme u updateu nakon stoj se ovaj new artist izvrsi...
-                    this.props.onSetStateProperty("currentArtist");}})
-            .then(() => this.props.onSetStateProperty("currentRoute", "home"))
-            .catch(err => console.log(err))        
-
+            .then(response => { 
+                if(response.message === "new artist successfully added"){
+                    console.log(response);
+                    this.props.onSetStateProperty("artists", response.data);
+                    this.props.onSetStateProperty("currentArtist");
+                    this.props.onSetStateProperty("currentRoute", "home");
+                }
+                else if(response.message === "Please fill all fields"){
+                    this.props.onSetStateProperty("message", "Ispunite sva polja");
+                }
+                else{
+                    this.props.onSetStateProperty("message", "Umjetnik s tim imenom već postoji u bai podataka");
+                }
+            })
+            .catch(err => console.log(err));                
         }
         else{
             this.props.onEndpointFetch("put", "/updateartist", artist)
-            .then(artists => 
-                {   this.props.onSetStateProperty("artists", artists);
-                    this.props.onSetStateProperty("currentArtist", artists.find(artist => artist.id === this.state.artist.id))})
-            .then(() => this.props.onSetStateProperty("currentRoute", "band"))
-            .catch(err => console.log(err));
+            .then(response => { 
+                if(response.message === "the artist was successfully updated"){
+                    this.props.onSetStateProperty("artists", response.data.artists);
+                    this.props.onSetStateProperty("currentArtist", response.data.currentArtist);
+                    this.props.onSetStateProperty("currentRoute", "band");
+                }
+                else if(response.message === "data retrieval failed"){
+                    this.props.onSetStateProperty("message", "Pojavio se problem s učitavanjem podataka, ali ažuriranje je uspjelo. Pokušajte osvježiti stranicu.");
+                }
+                else{
+                    this.props.onSetStateProperty("message", "Ažuriranje nije uspjelo");
+                }
+            })
+            .catch(err => console.log(err));                
         }
     }
     render(){
@@ -110,6 +127,8 @@ class AddUpdateArtist extends React.Component {
                     </div>
 
                     <input type="submit" value="Pošalji"/>
+                    {<div>{this.props.message}</div>}
+
 
                 </form>
 

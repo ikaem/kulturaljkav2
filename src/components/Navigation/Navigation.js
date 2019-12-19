@@ -16,7 +16,9 @@ const Navigation = ({setCurrentRoute, loggedUser, setInitialState, onSetStatePro
                         (<div>
                         <li onClick={() => {
                             onSetStateProperty("loggedUser");
-                            onSetStateProperty("currentArtist", {});
+                            onSetStateProperty("currentArtist");
+                            onSetStateProperty("currentRoute", "home");
+
                         }}>Odjava</li>
                         <li style={{listStyleType: "none"}}>Dobar dan, <strong>{loggedUser.name.charAt(0).toUpperCase() + loggedUser.name.slice(1)}</strong>.</li></div>
                         )
