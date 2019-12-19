@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DetailedCard = ({loggedInRouter, currentArtist}) => {
+const DetailedCard = ({currentArtist, onSetStateProperty, loggedUser}) => {
     const { name, image, alt, genre, city, web, submittedBy, submittedOn } = currentArtist;
 
     return (
@@ -16,7 +16,17 @@ const DetailedCard = ({loggedInRouter, currentArtist}) => {
             <p><a href={"http://www." + web}>{web}</a></p>
             <p>Postavio {submittedBy} dana {submittedOn.toLocaleString()}</p>
             <input 
-            onClick={() => loggedInRouter("updateArtist", "signin", name, "Molimo prijavite se ili se registrirajte kako biste uređivali profile izvođača")}
+            onClick={() => 
+                {
+                    if(loggedUser.name){
+                        onSetStateProperty("currentRoute", "updateartist");
+                    }
+                    else{
+                        onSetStateProperty("currentRoute", "signin");
+                        onSetStateProperty("message", "Molimo prijavite se");
+                    }
+                }
+            }
             type="button" value="Uredi izvođača"/>
 
         </div>

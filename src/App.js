@@ -12,17 +12,38 @@ import SigninRegister from './components/SigninRegister/SigninRegister';
 class App extends React.Component {
   constructor(){
     super();
-      this.state = {};
+      this.state = {
+        artists: [],
+        // currentRoute: "home",
+        currentRoute: "home",
+        // currentRoute: "band",
+        currentArtist: {
+          alt: "",
+          city: "",
+          genre: "",
+          id: "",
+          image: "",
+          name: "",
+          submittedBy: "",
+          submittedOn: "",
+          lastUpdatedOn: "",
+          lastUpdatedBy: "",
+          web: "",
+        },
+        loggedUser: {
+/*           name: "Karlo",
+          email: "karlo@gmail.com" */
+        },
+        message: "",
+      };
   }
   componentDidMount(){
-    this.setInitialState();
     // ROOT GET
     this.onEndpointFetch("get","/",)
-    .then(artists => this.setState({artists: artists}))
-}
-
-  onEndpointFetch = (method, param1="", data) => {
-    return fetch(`http://localhost:5000${param1}`,{
+    .then(artists => this.onSetStateProperty("artists", artists));
+  }
+  onEndpointFetch = (method, param="", data) => {
+    return fetch(`http://localhost:5000${param}`,{
       method: method,
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(data)
@@ -30,39 +51,13 @@ class App extends React.Component {
     .then(response => response.json())
     .catch(err => console.log(err));
   }
-
-
-// UPDATE AND ADD ARTIST - this will move to add artist component
-  onArtistToDB = (artistData) => {
-    if(artistData.cameFrom === "updateArtist"){
-      this.onEndpointFetch("put","/updateartist","",artistData.artist)
-      .then(artist => this.setState({currentArtist: artist, currentRoute: "band"}))
-    }
-    else{
-      this.onEndpointFetch("post", "/addartist", "", artistData.artist)
-      .then(data => this.setState({currentRoute: "home"}));
-    }
-    // refetch artists in either case
-    this.onEndpointFetch("get","/",)
-    .then(artists => this.setState({artists: artists}))
-  }
-// -----------------------
-
-
-// this will go away
-  onSignoutAndResetState = () => {
-    this.setInitialState();
-    // refetch artists
-    this.onEndpointFetch("get","/",)
-    .then(artists => this.setState({artists: artists}))
-  }
-
   setLoggedUser = (user={}) => {
     this.setState({loggedUser: user});
   }
   setCurrentArtist = (artist={}) => {
-    this.setState({currentArtist: artists});
+    this.setState({currentArtist: artist});
   }
+  // dont think i need this one
   setInitialState = () => {
     this.setState({
       artists: [],
@@ -70,89 +65,69 @@ class App extends React.Component {
       currentRoute: "home",
       // currentRoute: "band",
       currentArtist: {
+        alt: "",
+        city: "",
+        genre: "",
+        id: "",
+        image: "",
+        name: "",
+        submittedBy: "",
+        submittedOn: "",
+        lastUpdatedOn: "",
+        lastUpdatedBy: "",
+        web: "",
       },
-      loggedUser: {
-        // name: "Karlo",
-        // email: "karlo@gmail.com"
-      },
+      loggedUser: {},
       message: "",
     })
   }
+  /* DONT NEED THIS ONE
   setCurrentRoute = (route="home") => {
     this.setState({currentRoute: route});
-  }
+  } */
   setMessage = (message="") => {
     this.setState({message: message});
   }
-  onChangeRoute = (route, artistName = "", notLoggedMessage = "") => {
-    // used for creating currentArtist object, to be used for the state so detailedCard, addUpdateArtists are avaialble
-    const onLoadCurrentArtist = (name) => {
-      if(name){
-        return this.state.artists.filter(artist => {
-          return artist.name === name;
-        })[0]
-      }
-      else{
-         return this.state.emptyArtist;
-      }
-    }
-    this.setState(Object.assign(this.state, {currentArtist: onLoadCurrentArtist(artistName), currentRoute: route, notLoggedMessage: notLoggedMessage}));
-
-    console.log("currentArtist:", this.state.currentArtist);
-    console.log("currentRoute:", this.state.currentRoute);
-  }
-
-  loggedInRouter = (logged, notLogged, artistName = "", notLoggedMessage = "") => {
-    if(this.state.loggedUser.name){
-        this.onChangeRoute(logged, artistName);
-    }
-    else{
-        this.onChangeRoute(notLogged, artistName, notLoggedMessage);
-        //this.setState({notLoggedMessage: notLoggedMessage});
-    }
-  }
-
-
   
+  // ===  would this work instead of all setstate functions? with default value being "", even for objects? === //
+  onSetStateProperty = (property, value={}) => {
+    this.setState({[property]: value});
+    // just for testing
+    console.log(value)
+  }
+  // ======================================================================== // 
+
+
   routeSwitcher = () => {
     switch(this.state.currentRoute){
       case "home": 
         return <div>
             <Home 
             artists={this.state.artists}
-            onChangeRoute={this.onChangeRoute}
+            onSetStateProperty={this.onSetStateProperty}
             key={this.state.currentRoute}
+            currentArtist={this.currentArtist}
             />
           </div>
       case "band": 
         return <div>
             <DetailedCard 
-            onChangeRoute={this.onChangeRoute}
-            loggedInRouter={this.loggedInRouter}
-            currentArtist={this.state.currentArtist}
-            id={this.state.currentArtist.id}
-            name={this.state.currentArtist.name}
-            image={this.state.currentArtist.image}
-            alt={this.state.currentArtist.alt}
-            genre={this.state.currentArtist.genre}
-            city={this.state.currentArtist.city}
-            web={this.state.currentArtist.web}
-            submittedBy={this.state.currentArtist.submittedBy}
-            submittedOn={this.state.currentArtist.submittedOn}
-            />
-          </div>
-      case "addArtist":
-      case "updateArtist": 
-        return <div>
-          <AddUpdateArtist
-            currentRoute={this.state.currentRoute}
-            onArtistToDB={this.onArtistToDB}
             currentArtist={this.state.currentArtist}
             loggedUser={this.state.loggedUser}
-            onChangeRoute={this.onChangeRoute}
-            // key={this.state.currentRoute}
+            onSetStateProperty={this.onSetStateProperty}
+            />
+          </div>
+      case "addartist":
+      case "updateartist": 
+        return <div>
+          <AddUpdateArtist
+            currentArtist={this.state.currentArtist}
+            currentRoute={this.state.currentRoute}
             key={this.state.currentRoute}
             onEndpointFetch={this.onEndpointFetch}
+            onSetStateProperty={this.onSetStateProperty}
+            loggedUser={this.state.loggedUser}
+            //
           />
           </div>
       case "signin":
@@ -160,11 +135,12 @@ class App extends React.Component {
         return <div>
           <SigninRegister
             currentRoute={this.state.currentRoute}
-            onChangeRoute={this.onChangeRoute}
-            loginUser={this.loggedUserToState}
-            notLoggedMessage={this.state.notLoggedMessage}
             currentArtist={this.state.currentArtist}
             onEndpointFetch={this.onEndpointFetch}
+            loggedUser={this.state.loggedUser}
+            onSetStateProperty={this.onSetStateProperty}
+            message={this.state.message}
+            key={this.state.currentRoute}
           />
           </div>
       default: 
@@ -172,18 +148,16 @@ class App extends React.Component {
     }
   }
 
-  
 
   render(){
     return (
       <div>
         <h1>Kulturaljka</h1>
         <Navigation
-          onSignoutAndResetState={this.onSignoutAndResetState}
-          onChangeRoute={this.onChangeRoute}
-          loggedInRouter={this.loggedInRouter}
+          setCurrentRoute={this.setCurrentRoute}
           loggedUser={this.state.loggedUser}
-          currentArtist={this.state.currentArtist}
+          setInitialState={this.setInitialState}
+          onSetStateProperty={this.onSetStateProperty}
         />
 {/*         
         <Search/> */}
